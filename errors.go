@@ -16,6 +16,10 @@ var (
 	ErrCantStartTransaction = errors.New("can't start transaction")
 	// ErrUnaddressable unaddressable value
 	ErrUnaddressable = errors.New("using unaddressable value")
+	// ErrCantXAStartTransaction can't xa start
+	ErrInvalidXATransaction   = errors.New("no valid xa transaction")
+	ErrXAMissingXID           = errors.New("missing xid")
+	ErrCantXAStartTransaction = errors.New("can't xa start transaction")
 )
 
 // Errors contains all happened errors
