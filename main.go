@@ -863,7 +863,6 @@ func (s *DB) XAStart(xid string) (c *DB) {
 	if _, ok := s.Get("xid:xa"); ok {
 		s.AddError(ErrCantXAStartTransaction)
 	}
-	c.InstantSet("xid:xa", xid)
 	if db, ok := c.db.(SQLCommon); ok && db != nil {
 		if _, err := db.Exec(fmt.Sprintf("xa start '%s'", xid)); err != nil {
 			c.AddError(err)
@@ -871,6 +870,7 @@ func (s *DB) XAStart(xid string) (c *DB) {
 		}
 		c.db = s.db
 		c.dialect.SetDB(c.db)
+		c.InstantSet("xid:xa", xid)
 		c.AddError(nil)
 	} else {
 		c.AddError(ErrCantXAStartTransaction)
