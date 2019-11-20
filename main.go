@@ -534,6 +534,9 @@ func (s *DB) Begin() *DB {
 func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) *DB {
 	c := s.clone()
 	if db, ok := c.db.(sqlDb); ok && db != nil {
+		if xid, ok := s.Get("xid"); ok {
+			ctx = context.WithValue(ctx, "xid", xid)
+		}
 		tx, err := db.BeginTx(ctx, opts)
 		c.db = interface{}(tx).(SQLCommon)
 
@@ -805,6 +808,11 @@ func (s *DB) GetErrors() []error {
 		return []error{s.Error}
 	}
 	return []error{}
+}
+
+func (s *DB) XAStart(xid string) *DB {
+	s.InstantSet("xid", xid)
+	return s.BeginTx(context.Background(), &sql.TxOptions{})
 }
 
 ////////////////////////////////////////////////////////////////////////////////

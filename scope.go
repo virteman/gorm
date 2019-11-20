@@ -402,11 +402,9 @@ func (scope *Scope) InstanceGet(name string) (interface{}, bool) {
 // Begin start a transaction
 func (scope *Scope) Begin() *Scope {
 	if db, ok := scope.SQLDB().(sqlDb); ok {
-		if _, ok := scope.Get("xid:xa"); !ok {
-			if tx, err := db.Begin(); scope.Err(err) == nil {
-				scope.db.db = interface{}(tx).(SQLCommon)
-				scope.InstanceSet("gorm:started_transaction", true)
-			}
+		if tx, err := db.Begin(); scope.Err(err) == nil {
+			scope.db.db = interface{}(tx).(SQLCommon)
+			scope.InstanceSet("gorm:started_transaction", true)
 		}
 	}
 	return scope
