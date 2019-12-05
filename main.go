@@ -115,7 +115,6 @@ type closer interface {
 
 // Close close current db connection.  If database connection is not an io.Closer, returns an error.
 func (s *DB) Close() error {
-	fmt.Println("db close...")
 	if db, ok := s.parent.db.(closer); ok {
 		return db.Close()
 	}
