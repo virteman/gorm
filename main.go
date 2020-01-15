@@ -560,7 +560,7 @@ func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) *DB {
 	c := s.clone()
 	if db, ok := c.db.(sqlDb); ok && db != nil {
 		tx, err := db.BeginTx(ctx, opts)
-		c.InstantSet("gorm:objs", map[string]func(){})
+		c.InstantSet("gorm:tx:objs", map[string]func(){})
 		c.db = interface{}(tx).(SQLCommon)
 
 		c.dialect.SetDB(c.db)
