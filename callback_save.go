@@ -1,6 +1,7 @@
 package gorm
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 )
@@ -10,7 +11,9 @@ func beginTransactionCallback(scope *Scope) {
 }
 
 func commitOrRollbackTransactionCallback(scope *Scope) {
+	fmt.Println("before commitOrRollbackTransactionCallback")
 	scope.CommitOrRollback()
+	fmt.Println("after commitOrRollbackTransactionCallback")
 }
 
 func saveAssociationCheck(scope *Scope, field *Field) (autoUpdate bool, autoCreate bool, saveReference bool, r *Relationship) {
