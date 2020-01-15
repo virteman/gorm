@@ -9,8 +9,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/jinzhu/gorm"
 )
 
 // DB contains information for current db connection
@@ -562,7 +560,7 @@ func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) *DB {
 	c := s.clone()
 	if db, ok := c.db.(sqlDb); ok && db != nil {
 		tx, err := db.BeginTx(ctx, opts)
-		c.InstantSet("gorm:tx:objs", map[string]*gorm.Scope{})
+		c.InstantSet("gorm:tx:objs", map[string]*Scope{})
 		c.db = interface{}(tx).(SQLCommon)
 
 		c.dialect.SetDB(c.db)
@@ -581,7 +579,7 @@ func (s *DB) Commit() *DB {
 		if err := db.Commit(); err != nil {
 			s.AddError(err)
 		} else if ok {
-			for _, v := range funcs.(map[string]*gorm.Scope) {
+			for _, v := range funcs.(map[string]*Scope) {
 				v.CallMethod("AfterSaveCommit")
 			}
 		}
