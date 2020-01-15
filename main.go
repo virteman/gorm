@@ -560,6 +560,7 @@ func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) *DB {
 	c := s.clone()
 	if db, ok := c.db.(sqlDb); ok && db != nil {
 		tx, err := db.BeginTx(ctx, opts)
+		c.InstantSet("gorm:objs", map[string]func() error{})
 		c.db = interface{}(tx).(SQLCommon)
 
 		c.dialect.SetDB(c.db)
@@ -574,7 +575,14 @@ func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) *DB {
 func (s *DB) Commit() *DB {
 	var emptySQLTx *sql.Tx
 	if db, ok := s.db.(sqlTx); ok && db != nil && db != emptySQLTx {
-		s.AddError(db.Commit())
+		funcs, ok := s.Get("gorm:objs")
+		if err := db.Commit(); err != nil {
+			s.AddError(err)
+		} else if ok {
+			for _, v := range funcs.(map[string]func() error) {
+				_ = v()
+			}
+		}
 	} else {
 		s.AddError(ErrInvalidTransaction)
 	}
