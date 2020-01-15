@@ -575,7 +575,7 @@ func (s *DB) BeginTx(ctx context.Context, opts *sql.TxOptions) *DB {
 func (s *DB) Commit() *DB {
 	var emptySQLTx *sql.Tx
 	if db, ok := s.db.(sqlTx); ok && db != nil && db != emptySQLTx {
-		funcs, ok := s.Get("gorm:objs")
+		funcs, ok := s.Get("gorm:tx:objs")
 		if err := db.Commit(); err != nil {
 			s.AddError(err)
 		} else if ok {
@@ -583,6 +583,7 @@ func (s *DB) Commit() *DB {
 				v()
 			}
 		}
+		s.values.Delete("gorm:tx:objs")
 	} else {
 		s.AddError(ErrInvalidTransaction)
 	}
@@ -595,6 +596,7 @@ func (s *DB) Rollback() *DB {
 	if db, ok := s.db.(sqlTx); ok && db != nil && db != emptySQLTx {
 		if err := db.Rollback(); err != nil && err != sql.ErrTxDone {
 			s.AddError(err)
+			s.values.Delete("gorm:tx:objs")
 		}
 	} else {
 		s.AddError(ErrInvalidTransaction)

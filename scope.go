@@ -415,10 +415,8 @@ func (scope *Scope) CommitOrRollback() *Scope {
 	if _, ok := scope.InstanceGet("gorm:started_transaction"); ok {
 		if db, ok := scope.db.db.(sqlTx); ok {
 			if scope.HasError() {
-				fmt.Println("gorm:scope rollback")
 				db.Rollback()
 			} else {
-				fmt.Println("gorm:scope commit")
 				scope.Err(db.Commit())
 			}
 			scope.db.db = scope.db.parent.db
