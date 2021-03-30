@@ -418,6 +418,39 @@ func (s *DB) FirstOrInit(out interface{}, where ...interface{}) *DB {
 	return c
 }
 
+func (s *DB) FirstOrCreateWithoutPrimaryKey(out interface{}, fn func(out interface{}) (raw,old reflect.Value,err error), where ...interface{}) *DB {
+	c := s.clone()
+	raw,old,err := fn(out)
+	if err != nil {
+		c.AddError(err)
+		return c
+	}
+
+	//_id := ref.Elem().FieldByName("ID")
+	//var id reflect.Value
+	//if _id.IsValid() && !_id.IsZero() && _id.Kind() == reflect.Uint64 {
+	//	id = id.Int()
+	//	_id.SetInt(0)
+	//}
+	//var id reflect.Value
+	//fmt.Println(_id.IsZero())
+	if result := s.First(out, where...); result.Error != nil {
+		if !result.RecordNotFound() {
+			return result
+		}else if !old.IsZero() {
+			raw.Set(old)
+		}
+		return c.NewScope(out).inlineCondition(where...).initialize().callCallbacks(c.parent.callbacks.creates).db
+	} else if len(c.search.assignAttrs) > 0 {
+		if !old.IsZero() {
+			raw.Set(old)
+		}
+		return c.NewScope(out).InstanceSet("gorm:update_interface", c.search.assignAttrs).callCallbacks(c.parent.callbacks.updates).db
+	}
+	return c
+}
+
+
 // FirstOrCreate find first matched record or create a new one with given conditions (only works with struct, map conditions)
 // https://jinzhu.github.io/gorm/crud.html#firstorcreate
 func (s *DB) FirstOrCreate(out interface{}, where ...interface{}) *DB {
@@ -894,3 +927,4 @@ func (s *DB) slog(sql string, t time.Time, vars ...interface{}) {
 		s.print("sql", fileWithLineNum(), NowFunc().Sub(t), sql, vars, s.RowsAffected)
 	}
 }
+
