@@ -418,6 +418,8 @@ func (s *DB) FirstOrInit(out interface{}, where ...interface{}) *DB {
 	return c
 }
 
+
+//FirstOrCreateWithoutPrimaryKey
 func (s *DB) FirstOrCreateWithoutPrimaryKey(out interface{}, fn func(out interface{}) (raw,old reflect.Value,err error), where ...interface{}) *DB {
 	c := s.clone()
 	raw,old,err := fn(out)
@@ -425,15 +427,6 @@ func (s *DB) FirstOrCreateWithoutPrimaryKey(out interface{}, fn func(out interfa
 		c.AddError(err)
 		return c
 	}
-
-	//_id := ref.Elem().FieldByName("ID")
-	//var id reflect.Value
-	//if _id.IsValid() && !_id.IsZero() && _id.Kind() == reflect.Uint64 {
-	//	id = id.Int()
-	//	_id.SetInt(0)
-	//}
-	//var id reflect.Value
-	//fmt.Println(_id.IsZero())
 	if result := s.First(out, where...); result.Error != nil {
 		if !result.RecordNotFound() {
 			return result
