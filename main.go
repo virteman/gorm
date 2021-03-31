@@ -419,8 +419,8 @@ func (s *DB) FirstOrInit(out interface{}, where ...interface{}) *DB {
 }
 
 
-//FirstOrCreateWithoutPrimaryKey
-func (s *DB) FirstOrCreateWithoutPrimaryKey(out interface{}, fn func(out interface{}) (raw,old reflect.Value,err error), where ...interface{}) *DB {
+//FirstOrCreateWithFn ...
+func (s *DB) FirstOrCreateWithFn(out interface{}, fn func(out interface{}) (raw,old reflect.Value,err error), where ...interface{}) *DB {
 	c := s.clone()
 	raw,old,err := fn(out)
 	if err != nil {
