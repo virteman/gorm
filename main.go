@@ -431,12 +431,12 @@ func (s *DB) FirstOrCreateWithFn(out interface{}, fn func(out interface{}) (raw,
 		if !result.RecordNotFound() {
 			return result
 		}else if !old.IsZero() {
-			raw.Set(old)
+			raw.Set(old.Elem())
 		}
 		return c.NewScope(out).inlineCondition(where...).initialize().callCallbacks(c.parent.callbacks.creates).db
 	} else if len(c.search.assignAttrs) > 0 {
 		if !old.IsZero() {
-			raw.Set(old)
+			raw.Set(old.Elem())
 		}
 		return c.NewScope(out).InstanceSet("gorm:update_interface", c.search.assignAttrs).callCallbacks(c.parent.callbacks.updates).db
 	}
